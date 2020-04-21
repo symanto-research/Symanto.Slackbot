@@ -1,12 +1,11 @@
 # Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+ slack bot which intract with our deeplearning api
 
 # Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+
+1.	before run the node.js, rename .env.test file to .env file and put your data(like api token and bot token) in it
+2.	if any package is missed and have error, find the name in packages.json  and install them from 
+
 
 # Build and Test
 TODO: Describe and show how to build your code and run the tests. 
