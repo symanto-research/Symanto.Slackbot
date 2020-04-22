@@ -20,6 +20,11 @@ const apiUrl = 'https://slack.com/api';
 
 /* Handling events */
 
+
+app.get('/health', (req, res) => {
+  res.send('.');
+});
+
 app.post('/events', (req, res) => {
     
   // App setting validation
