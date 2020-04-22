@@ -91,7 +91,7 @@ function analyzeTextByDLApi(text, user, channel)
 }
 
 
-const server = app.listen(process.env.PORT || 443 || 'https://deeplearning-slackbot-dev.azurewebsites.net/events', () => {
+const server = app.listen(process.env.PORT || 80 , () => {
   console.log('Express server listening on port %d in %s mode', server.address().port, app.settings.env);
 
 });
