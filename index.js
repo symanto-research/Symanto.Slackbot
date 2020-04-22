@@ -14,7 +14,6 @@ const rawBodyBuffer = (req, res, buf, encoding) => {
 };
 app.use(bodyParser.urlencoded({verify: rawBodyBuffer, extended: true }));
 app.use(bodyParser.json({ verify: rawBodyBuffer }));
-/*  */
 
 const apiUrl = 'https://slack.com/api';
 
@@ -37,6 +36,7 @@ app.post('/events', (req, res) => {
 
     let regex = /(^\/)/;
     if(bot_id || regex.test(text)) return;
+    if(req.body.event.subtype==='channel_join' || req.body.event.subtype==='bot_add' || req.body.event.subtype==='bot_remove' ) return;
     analyzeTextByDLApi(text, user, channel);
     
   }
@@ -86,7 +86,7 @@ function analyzeTextByDLApi(text, user, channel)
 }
 
 
-const server = app.listen(process.env.PORT || 80, () => {
+const server = app.listen(process.env.PORT || 443 || 'https://deeplearning-slackbot-dev.azurewebsites.net/events', () => {
   console.log('Express server listening on port %d in %s mode', server.address().port, app.settings.env);
 
 });
