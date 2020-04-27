@@ -14,9 +14,7 @@ const rawBodyBuffer = (req, res, buf, encoding) => {
 app.use(bodyParser.urlencoded({ verify: rawBodyBuffer, extended: true }));
 app.use(bodyParser.json({ verify: rawBodyBuffer }));
 
-
 /* Handling events */
-
 
 app.get('/health', (req, res) => {
   res.send('Server is running');
@@ -30,7 +28,6 @@ app.post('/events', (req, res) => {
   }
 
   // Events 
-
   else if (req.body.type === 'event_callback') {
     res.sendStatus(200);
 
@@ -41,39 +38,37 @@ app.post('/events', (req, res) => {
     if (bot_id || regex.test(text)) return;
     if (req.body.event.subtype === 'channel_join' || req.body.event.subtype === 'bot_add' || req.body.event.subtype === 'bot_remove') return;
     analyzeTextByDLApi(text, user, channel);
-
   }
 
 });
-function analyzeTextByDLApi(text, user, channel) {
 
-  var jsonString = JSON.stringify({
+const analyzeTextByDLApi = (text, user, channel) => {
+  const jsonString = JSON.stringify({
     id: "",
     language: "en",
     text: text
   });
-  var input = "[" + jsonString + "]";
+  const input = "[" + jsonString + "]";
 
-  var sentimentUrl = process.env.DL_SENTIMENT;
-  var config = {
+  const sentimentUrl = process.env.DL_SENTIMENT;
+  const config = {
     method: 'post',
     headers: {
       "Content-Type": "application/json",
       "API_KEY": process.env.API_KEY
     }
   };
-  var final = "";
-  var username = "";
+
   axios.post(sentimentUrl, input, config)
-    .then(function (response) {
-      var result = JSON.stringify(response.data);
-      var finalResult = JSON.parse(result);
-      final = finalResult[0].predictions[0].prediction;
+    .then((response) => {
+      const result = JSON.stringify(response.data);
+      const finalResult = JSON.parse(result);
+      const final = finalResult[0].predictions[0].prediction;
 
       axios.post('https://slack.com/api/users.info?token=' + process.env.SLACK_ACCESS_TOKEN + '&user=' + user + '&pretty=1')
-        .then(function (response) {
-          username = response.data.user.name;
-          const emoji;
+        .then((response) => {
+          const username = response.data.user.name;
+          let emoji;
           if (final === 'positive') {
             emoji = ':slightly_smiling_face:';
           }
@@ -88,5 +83,4 @@ function analyzeTextByDLApi(text, user, channel) {
 
 const server = app.listen(process.env.PORT || 80, () => {
   console.log('Express server listening on port %d in %s mode', server.address().port, app.settings.env);
-
 });
