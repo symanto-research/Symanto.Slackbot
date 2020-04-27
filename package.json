@@ -1,7 +1,7 @@
 {
   "name": "slack-bot",
   "version": "1.0.0",
-  "description": "slack bot which call deep learning api to show the sentment in chanel",
+  "description": "slack bot which call deep learning api to show the sentiment in channel",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -14,8 +14,6 @@
     "body-parser": "^1.19.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "qs": "^6.9.3",
-    "request": "^2.88.2",
     "tsscmp": "^1.0.6"
   }
 }
