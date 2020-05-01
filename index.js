@@ -50,7 +50,9 @@ const analyzeTextByDLApi = (text, user, channel) => {
   });
   const input = "[" + jsonString + "]";
 
+  const languageDetection = process.env.DL_LANGUAGEDETECTION;
   const sentimentUrl = process.env.DL_SENTIMENT;
+
   const config = {
     method: 'post',
     headers: {
@@ -59,24 +61,40 @@ const analyzeTextByDLApi = (text, user, channel) => {
     }
   };
 
-  axios.post(sentimentUrl, input, config)
+  axios.post(languageDetection, input, config)
     .then((response) => {
-      const result = JSON.stringify(response.data);
-      const finalResult = JSON.parse(result);
-      const final = finalResult[0].predictions[0].prediction;
 
-      axios.post('https://slack.com/api/users.info?token=' + process.env.SLACK_ACCESS_TOKEN + '&user=' + user + '&pretty=1')
-        .then((response) => {
-          const username = response.data.user.name;
-          let emoji;
-          if (final === 'positive') {
-            emoji = ':slightly_smiling_face:';
-          }
-          else if (final === 'negative') {
-            emoji = ':white_frowning_face:';
-          }
-          axios.post('https://slack.com/api/chat.postMessage?token=' + process.env.SLACK_ACCESS_TOKEN + '&channel=' + channel + '&text=' + username + ' sent a ' + final + ' message ' + emoji + '&pretty=1');
-        })
+      const lang = response.data[0].detected_language;
+      if (lang === "en" || lang === "de" || lang === "es") {
+        const sentimentJson = JSON.stringify({
+          id: "",
+          language: lang,
+          text: text
+        });
+        const sentimentInput = "[" + sentimentJson + "]";
+        axios.post(sentimentUrl, sentimentInput, config)
+          .then((response) => {
+            const result = JSON.stringify(response.data);
+            const finalResult = JSON.parse(result);
+            const final = finalResult[0].predictions[0].prediction;
+
+            axios.post('https://slack.com/api/users.info?token=' + process.env.SLACK_ACCESS_TOKEN + '&user=' + user + '&pretty=1')
+              .then((response) => {
+                const username = response.data.user.name;
+                let emoji;
+                if (final === 'positive') {
+                  emoji = ':slightly_smiling_face:';
+                }
+                else if (final === 'negative') {
+                  emoji = ':white_frowning_face:';
+                }
+                axios.post('https://slack.com/api/chat.postMessage?token=' + process.env.SLACK_ACCESS_TOKEN + '&channel=' + channel + '&text=' + username + ' sent a ' + final + ' message ' + emoji + '&pretty=1');
+              })
+          })
+      }
+      else {
+        axios.post('https://slack.com/api/chat.postMessage?token=' + process.env.SLACK_ACCESS_TOKEN + '&channel=' + channel + '&text=' + 'language is not supported. Supported languages are: en,de,es' + '&pretty=1');
+      }
     })
 }
 
