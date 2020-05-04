@@ -122,7 +122,7 @@ const analyzeTextByDLApi = (text, user, channel, locale) => {
           notSupported = "language is not supported. Supported languages are: en,de,es";
         }
         else if (locale === "de-DE") {
-          notSupported = "Sprache wird nicht unterstützt. Unterstützte Sprachen sind: en, de, es"
+          notSupported = "Sprache wird nicht unterstutzt. Unterstutzte Sprachen sind: en, de, es"
         }
 
         else if (locale === "es-ES") {
