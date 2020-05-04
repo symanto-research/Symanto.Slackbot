@@ -117,7 +117,19 @@ const analyzeTextByDLApi = (text, user, channel, locale) => {
           })
       }
       else {
-        axios.post('https://slack.com/api/chat.postMessage?token=' + process.env.SLACK_ACCESS_TOKEN + '&channel=' + channel + '&text=' + 'language is not supported. Supported languages are: en,de,es' + '&pretty=1');
+        var notSupported;
+        if (locale === "en-GB" || locale === "en-US") {
+          notSupported = "language is not supported. Supported languages are: en,de,es";
+        }
+        else if (locale === "de-DE") {
+          notSupported = "Sprache wird nicht unterstützt. Unterstützte Sprachen sind: en, de, es"
+        }
+
+        else if (locale === "es-ES") {
+          notSupported = "El idioma no es compatible. Los idiomas admitidos son: en, de, es"
+        }
+
+        axios.post('https://slack.com/api/chat.postMessage?token=' + process.env.SLACK_ACCESS_TOKEN + '&channel=' + channel + '&text=' + notSupported + '&pretty=1');
       }
 
     })
