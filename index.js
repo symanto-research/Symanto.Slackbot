@@ -1,4 +1,5 @@
 
+
 const express = require('express');
 const app = express();
 
@@ -37,15 +38,22 @@ app.post('/events', (req, res) => {
     let regex = /(^\/)/;
     if (bot_id || regex.test(text)) return;
     if (req.body.event.subtype === 'channel_join' || req.body.event.subtype === 'bot_add' || req.body.event.subtype === 'bot_remove') return;
-    analyzeTextByDLApi(text, user, channel);
+
+    // Get workspace language
+
+    axios.post('https://slack.com/api/conversations.info?token=' + process.env.SLACK_ACCESS_TOKEN + '&channel=' + channel + '&include_locale=true&pretty=1')
+      .then((response) => {
+        let locale = response.data.channel.locale;
+        analyzeTextByDLApi(text, user, channel, locale);
+      })
   }
 
 });
 
-const analyzeTextByDLApi = (text, user, channel) => {
+const analyzeTextByDLApi = (text, user, channel, locale) => {
   const jsonString = JSON.stringify({
     id: "",
-    language: "en",
+    language: "",
     text: text
   });
   const input = "[" + jsonString + "]";
@@ -80,7 +88,11 @@ const analyzeTextByDLApi = (text, user, channel) => {
 
             axios.post('https://slack.com/api/users.info?token=' + process.env.SLACK_ACCESS_TOKEN + '&user=' + user + '&pretty=1')
               .then((response) => {
-                const username = response.data.user.name;
+                var username = response.data.user.name;
+                var realname = response.data.user.real_name;
+                if (realname) {
+                  username = realname;
+                }
                 let emoji;
                 if (final === 'positive') {
                   emoji = ':slightly_smiling_face:';
@@ -88,13 +100,26 @@ const analyzeTextByDLApi = (text, user, channel) => {
                 else if (final === 'negative') {
                   emoji = ':white_frowning_face:';
                 }
-                axios.post('https://slack.com/api/chat.postMessage?token=' + process.env.SLACK_ACCESS_TOKEN + '&channel=' + channel + '&text=' + username + ' sent a ' + final + ' message ' + emoji + '&pretty=1');
+                var finalMessage;
+                if (locale === "en-GB" || locale === "en-US") {
+                  finalMessage = username + ' sent a ' + final + ' message ' + emoji
+                }
+                else if (locale === "de-DE") {
+                  finalMessage = username + ' hat eine ' + final + ' Nachricht gesendet ' + emoji
+                }
+
+                else if (locale === "es-ES") {
+                  finalMessage = username + ' envio un mensaje ' + final + " " + emoji
+                }
+
+                axios.post('https://slack.com/api/chat.postMessage?token=' + process.env.SLACK_ACCESS_TOKEN + '&channel=' + channel + '&text=' + finalMessage + '&pretty=1');
               })
           })
       }
       else {
         axios.post('https://slack.com/api/chat.postMessage?token=' + process.env.SLACK_ACCESS_TOKEN + '&channel=' + channel + '&text=' + 'language is not supported. Supported languages are: en,de,es' + '&pretty=1');
       }
+
     })
 }
 
