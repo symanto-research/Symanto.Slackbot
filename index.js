@@ -109,10 +109,10 @@ const analyzeTextByDLApi = (text, user, channel, locale) => {
                 }
 
                 else if (locale === "es-ES") {
-                  finalMessage = username + ' envio un mensaje ' + final + " " + emoji
+                  finalMessage = username + ' envió un mensaje ' + final + " " + emoji
                 }
 
-                axios.post('https://slack.com/api/chat.postMessage?token=' + process.env.SLACK_ACCESS_TOKEN + '&channel=' + channel + '&text=' + finalMessage + '&pretty=1');
+                axios.post('https://slack.com/api/chat.postMessage?token=' + process.env.SLACK_ACCESS_TOKEN + '&channel=' + channel + '&text=' + encodeURIComponent(finalMessage) + '&pretty=1');
               })
           })
       }
@@ -122,14 +122,21 @@ const analyzeTextByDLApi = (text, user, channel, locale) => {
           notSupported = "language is not supported. Supported languages are: en,de,es";
         }
         else if (locale === "de-DE") {
-          notSupported = "Sprache wird nicht unterstutzt. Unterstutzte Sprachen sind: en, de, es"
+          notSupported = "Sprache wird nicht unterstützt. Unterstützte Sprachen sind: en, de, es"
         }
 
         else if (locale === "es-ES") {
           notSupported = "El idioma no es compatible. Los idiomas admitidos son: en, de, es"
         }
+        
+        const config = {
+          method: 'post',
+          headers: {
+            "Content-Type": "application/json;charset=utf-8"
+          }
+        };
+        axios.post('https://slack.com/api/chat.postMessage?token=' + process.env.SLACK_ACCESS_TOKEN + '&channel=' + channel + '&text=' + encodeURIComponent(notSupported) + '&pretty=1', config);
 
-        axios.post('https://slack.com/api/chat.postMessage?token=' + process.env.SLACK_ACCESS_TOKEN + '&channel=' + channel + '&text=' + notSupported + '&pretty=1');
       }
 
     })
