@@ -111,6 +111,9 @@ const analyzeTextByDLApi = (text, user, channel, locale) => {
                 else if (locale === "es-ES") {
                   finalMessage = username + ' envió un mensaje ' + final + " " + emoji
                 }
+                else {
+                  finalMessage = username + ' sent a ' + final + ' message ' + emoji
+                }
 
                 axios.post('https://slack.com/api/chat.postMessage?token=' + process.env.SLACK_ACCESS_TOKEN + '&channel=' + channel + '&text=' + encodeURIComponent(finalMessage) + '&pretty=1');
               })
